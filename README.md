@@ -2,7 +2,7 @@
 ** Ivan Platonov 02121-DB ISU IMIT **  
 ** E-Mail: EventGraphDev@gmail.com **  
 ** GitHub: https://github.com/Ivanplat **  
-** PracticeWork01 | 10.09.2021 **  
+** PracticeWork01 | 11.09.2021 **  
 ** Using C++17 Standart **  
 ** Using C ISO 17 Standart **  
 
