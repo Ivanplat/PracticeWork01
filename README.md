@@ -12,7 +12,7 @@ main.cpp в нем самом
 В папке PracticeWork01/Source/private/ находятся исполнительные файлы классов  
 В папке PracticeWork01/Source/public/ находятся сами файлы классов  
 
-#Output  
+# Output  
 0000000010010001  
 0000010011111100  
 10110011  
