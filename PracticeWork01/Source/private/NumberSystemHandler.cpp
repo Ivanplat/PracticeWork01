@@ -31,30 +31,7 @@ void NumberSystemHandler::IntegerToBinary(int Number, unsigned int BufferSize, b
 		if (Additional)
 		{
 
-			for (int i = 1; i < str.size(); i++)
-			{
-				int n = -(str[i] - '0') + 1;
-				str[i] = std::to_string(n)[0];
-			}
-			if (str[str.size() - 1] == '1')
-			{
-				for (int j = str.size() - 1; j > 0; j--)
-				{
-					if (str[j] == '1')
-					{
-						str[j] = '0';
-					}
-					else
-					{
-						str[j] = '1';
-						break;
-					}
-				}
-			}
-			else
-			{
-				str[str.size() - 1] = '1';
-			}
+			ToAdditional(str);
 		}
 	}
 
