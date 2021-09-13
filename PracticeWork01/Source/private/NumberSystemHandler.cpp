@@ -2,7 +2,7 @@
 #include <string>
 #include <iostream>
 
-void NumberSystemHandler::IntegerToBinary(int Number, unsigned int BufferSize)
+void NumberSystemHandler::IntegerToBinary(int Number, unsigned int BufferSize, bool Additional)
 {
 	bool Negative = (Number < 0) ? true : false;
 
@@ -14,11 +14,8 @@ void NumberSystemHandler::IntegerToBinary(int Number, unsigned int BufferSize)
 
 	std::string str;
 
-	while (Number > 0)
-	{
-		str += std::to_string((Number % 2));
-		Number /= 2;
-	}
+	ToBinary(Number, str);
+
 	int Steps = BufferSize * 8 - str.size();
 	if (Steps > 0)
 	{
@@ -31,12 +28,42 @@ void NumberSystemHandler::IntegerToBinary(int Number, unsigned int BufferSize)
 	if (Negative)
 	{
 		str[0] = '1';
+		if (Additional)
+		{
+
+			for (int i = 1; i < str.size(); i++)
+			{
+				int n = -(str[i] - '0') + 1;
+				str[i] = std::to_string(n)[0];
+			}
+			if (str[str.size() - 1] == '1')
+			{
+				for (int j = str.size() - 1; j > 0; j--)
+				{
+					if (str[j] == '1')
+					{
+						str[j] = '0';
+					}
+					else
+					{
+						str[j] = '1';
+						break;
+					}
+				}
+			}
+			else
+			{
+				str[str.size() - 1] = '1';
+			}
+		}
 	}
 
-	std::cout << str<<std::endl;
+	std::cout << str << std::endl;
+
 }
 
-void NumberSystemHandler::RealToBinary(float Number, unsigned int MantiseSize, unsigned int OrderSize)
+
+void NumberSystemHandler::RealToBinary(float Number, unsigned int MantiseSize, unsigned int OrderSize, bool Additional)
 {
 	bool Negative = (Number < 0) ? true : false;
 
@@ -49,32 +76,28 @@ void NumberSystemHandler::RealToBinary(float Number, unsigned int MantiseSize, u
 	float IntergerPartPtr;
 	float FactionalPart = std::modf(Number, &IntergerPartPtr);
 	int IntergerPart = (int)IntergerPartPtr;
-	int Mantise = 0;
+	int OrderPow = 0;
 	if (IntergerPart == 0)
 	{
 		for (const auto i : std::to_string(FactionalPart))
 		{
-			Mantise++;
+			OrderPow++;
 			if (i != '0')
 			{
-				Mantise *= (-1);
+				OrderPow *= (-1);
 				break;
 			}
 		}
 	}
 	else
 	{
-		Mantise = std::to_string(IntergerPart).size();
+		OrderPow = std::to_string(IntergerPart).size();
 	}
 
 	std::string str;
 	if (IntergerPart > 0)
 	{
-		while (IntergerPart > 0)
-		{
-			str += std::to_string((IntergerPart % 2));
-			IntergerPart /= 2;
-		}
+		ToBinary(IntergerPart, str);
 	}
 	else
 	{
@@ -82,7 +105,12 @@ void NumberSystemHandler::RealToBinary(float Number, unsigned int MantiseSize, u
 		str.push_back('0');
 	}
 	std::reverse(str.begin(), str.end());
+	if (Additional && Negative)
+	{
+		ToAdditional(str);
+	}
 	str.push_back(',');
+	std::string fpstr;
 	if (FactionalPart > 0)
 	{
 		while (FactionalPart > 0)
@@ -90,20 +118,35 @@ void NumberSystemHandler::RealToBinary(float Number, unsigned int MantiseSize, u
 			FactionalPart *= 2;
 			if (FactionalPart >= 1)
 			{
-				str.push_back('1');
+				fpstr.push_back('1');
 				FactionalPart -= 1.0f;
 			}
 			else
 			{
-				str.push_back('0');
+				fpstr.push_back('0');
 			}
 		}
+		if (Additional && Negative)
+		{
+			ToAdditional(fpstr);
+		}
+		str += fpstr;
 		int Steps = MantiseSize * 8 - str.size();
 		if (Steps > 0)
 		{
-			for (int i = 0; i < Steps; i++)
+			if (Additional && Negative)
 			{
-				str.insert(str.begin(), '0');
+				for (int i = 0; i < Steps; i++)
+				{
+					str.insert(str.begin(), '1');
+				}
+			}
+			else
+			{
+				for (int i = 0; i < Steps; i++)
+				{
+					str.insert(str.begin(), '0');
+				}
 			}
 		}
 		if (Negative)
@@ -116,31 +159,69 @@ void NumberSystemHandler::RealToBinary(float Number, unsigned int MantiseSize, u
 		str.push_back('0');
 	}
 
-	std::string mantstr;
-	bool NegativeMantise = (Mantise < 0) ? true : false;
-	if (NegativeMantise)
+	std::string ordstr;
+	bool NegativePow = (OrderPow < 0) ? true : false;
+	if (NegativePow)
 	{
-		Mantise *= (-1);
+		OrderPow *= (-1);
 	}
-	while (Mantise > 0)
-	{
-		mantstr += std::to_string(Mantise % 2);
-		Mantise /= 2;
-	}
-	int OrderSteps = OrderSize*8 - mantstr.size();
+	ToBinary(OrderPow, ordstr);
+
+	int OrderSteps = OrderSize*8 - ordstr.size();
 	if (OrderSteps > 0)
 	{
 		for (int i = 0; i < OrderSteps; i++)
 		{
-			mantstr.push_back('0');
+			ordstr.push_back('0');
 		}
 	}
-	std::reverse(mantstr.begin(), mantstr.end());
-	if (NegativeMantise)
+	std::reverse(ordstr.begin(), ordstr.end());
+	if (NegativePow)
 	{
-		mantstr[0] = '1';
+		ordstr[0] = '1';
 	}
-	std::string result = mantstr + " " + str;
+	if (Additional && Negative)
+	{
+		ToAdditional(ordstr);
+	}
+	std::string result = ordstr + " " + str;
 	std::cout << result<<std::endl;
 
+}
+
+void NumberSystemHandler::ToBinary(int& Number, std::string& Output)
+{
+	while (Number > 0)
+	{
+		Output += std::to_string((Number % 2));
+		Number /= 2;
+	}
+}
+
+void NumberSystemHandler::ToAdditional(std::string& NumberString)
+{
+	for (int i = 1; i < NumberString.size(); i++)
+	{
+		int n = -(NumberString[i] - '0') + 1;
+		NumberString[i] = std::to_string(n)[0];
+	}
+	if (NumberString[NumberString.size() - 1] == '1')
+	{
+		for (int j = NumberString.size() - 1; j > 0; j--)
+		{
+			if (NumberString[j] == '1')
+			{
+				NumberString[j] = '0';
+			}
+			else
+			{
+				NumberString[j] = '1';
+				break;
+			}
+		}
+	}
+	else
+	{
+		NumberString[NumberString.size() - 1] = '1';
+	}
 }
